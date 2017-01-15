@@ -1,16 +1,33 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * The MIT License
+ *
+ * Copyright 2017 Pronink.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
+
 package MadeBy;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.enchantment.EnchantItemEvent;
@@ -27,6 +44,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  *
  * @author Pronink
  */
+// TODO: Crear lista de items que usarán esta característica, en vez de coger todos los no estaqueables
 public class Main extends JavaPlugin implements Listener
 {
 
@@ -45,12 +63,11 @@ public class Main extends JavaPlugin implements Listener
     {
     }
 
-    // AL CRAFTEAR
+    // AL CRAFTEAR (O REPARAR)
     @EventHandler
     public void craftItem(PrepareItemCraftEvent event)
     {
-	boolean isRepair = false;
-	// SI ES UNA REPARACION
+	boolean isRepair = false; // Tengo que testear si es reparación de un ítem o un crafteo normal
 	Inventory inventory = event.getInventory();
 	if (inventory instanceof CraftingInventory)
 	{
@@ -78,22 +95,22 @@ public class Main extends JavaPlugin implements Listener
 		    }
 		}
 	    }
-	    if (isRepair && firstItem.getData().getItemType().equals(secondItem.getData().getItemType())) // SI ES REPARACION Y SON IGUALES
+	    if (isRepair && firstItem.getData().getItemType().equals(secondItem.getData().getItemType())) // REPARACIÓN
 	    {
 		String player = event.getView().getPlayer().getName();
 		// Primero tengo que combinar y luego añadir lo nuevo. Tanto aqui como en el anvil
 		List<String> firstMeta = firstItem.getItemMeta().getLore();
 		List<String> secondMeta = secondItem.getItemMeta().getLore();
-		List<String> loreList = combineLores(firstMeta, secondMeta);  // Combino
+		List<String> loreList = combinePlayers(firstMeta, secondMeta);  // Combino
 
-		loreList = addNewPlayerTo(loreList, FUSIONADO, player);       // Agrego
+		loreList = addPlayer(loreList, FUSIONADO, player);       // Agrego
 		ItemStack item = event.getRecipe().getResult();
 		ItemMeta meta = item.getItemMeta();
 		meta.setLore(loreList);
 		item.setItemMeta(meta);
 		event.getInventory().setResult(item);
 	    }
-	    else // NO ES REPARACION, SOLO ES CRAFTEO
+	    else // CRAFTEO
 	    {
 		ItemStack item = event.getRecipe().getResult();
 		if (item.getMaxStackSize() == 1)
@@ -102,7 +119,7 @@ public class Main extends JavaPlugin implements Listener
 		    List<String> loreList = verifyLoreList(meta.getLore());
 
 		    String player = event.getView().getPlayer().getName();
-		    loreList = addNewPlayerTo(loreList, CRAFTEADO, player);
+		    loreList = addPlayer(loreList, CRAFTEADO, player);
 
 		    meta.setLore(loreList);
 		    item.setItemMeta(meta);
@@ -122,7 +139,7 @@ public class Main extends JavaPlugin implements Listener
 	ItemMeta meta = item.getItemMeta();
 	List<String> loreList = meta.getLore();
 
-	loreList = addNewPlayerTo(loreList, ENCANTADO, player);
+	loreList = addPlayer(loreList, ENCANTADO, player);
 
 	meta.setLore(loreList);
 	item.setItemMeta(meta);
@@ -146,8 +163,8 @@ public class Main extends JavaPlugin implements Listener
 		ItemStack resultItem = anvilInventory.getItem(2);
 		if (resultItem != null) // AQUI SOLO ENTRA EN LA SEGUNDA VEZ. Es un bug menor
 		{
-		    List<String> resultLores = combineLores(firstLores, secondLores);
-		    resultLores = addNewPlayerTo(resultLores, FUSIONADO, player);
+		    List<String> resultLores = combinePlayers(firstLores, secondLores);
+		    resultLores = addPlayer(resultLores, FUSIONADO, player);
 		    ItemMeta meta = resultItem.getItemMeta();
 		    meta.setLore(resultLores);
 		    resultItem.setItemMeta(meta);
@@ -157,6 +174,7 @@ public class Main extends JavaPlugin implements Listener
 	}
     }
 
+    // MÉTODOS DE AYUDA A LOS PRINCIPALES
     private List<String> verifyLoreList(List<String> loreList) // Creo el boceto inicial
     {
 	if (loreList == null || loreList.size() != 3) // Con esto me aseguro que si es corrupto lo borro
@@ -170,7 +188,7 @@ public class Main extends JavaPlugin implements Listener
 	return loreList;
     }
 
-    private List<String> addNewPlayerTo(List<String> loreList, int loreAtt, String player)
+    private List<String> addPlayer(List<String> loreList, int loreAtt, String player)
     {
 	if (loreList == null) // Me aseguro antes de que exista
 	{
@@ -214,7 +232,7 @@ public class Main extends JavaPlugin implements Listener
 	return loreList;
     }
 
-    private List<String> combineLores(List<String> firstMeta, List<String> secondMeta)
+    private List<String> combinePlayers(List<String> firstMeta, List<String> secondMeta)
     {
 	// Verifico que el antiguo meta tenga algo, aunque sea vacio
 	if (firstMeta == null)

@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package MadeBy;
 
 import java.util.ArrayList;
@@ -99,8 +98,8 @@ public class Main extends JavaPlugin implements Listener
 	    {
 		String player = event.getView().getPlayer().getName();
 		// Primero tengo que combinar y luego añadir lo nuevo. Tanto aqui como en el anvil
-		List<String> firstMeta = firstItem.getItemMeta().getLore();
-		List<String> secondMeta = secondItem.getItemMeta().getLore();
+		List<String> firstMeta = verifyLoreList(firstItem.getItemMeta().getLore());
+		List<String> secondMeta = verifyLoreList(secondItem.getItemMeta().getLore());
 		List<String> loreList = combinePlayers(firstMeta, secondMeta);  // Combino
 
 		loreList = addPlayer(loreList, FUSIONADO, player);       // Agrego
@@ -157,12 +156,12 @@ public class Main extends JavaPlugin implements Listener
 	    ItemStack secondItem = anvilInventory.getItem(1);
 	    if (firstItem != null && secondItem != null)
 	    {
-		List<String> firstLores = firstItem.getItemMeta().getLore();
-		List<String> secondLores = secondItem.getItemMeta().getLore();
-
 		ItemStack resultItem = anvilInventory.getItem(2);
 		if (resultItem != null) // AQUI SOLO ENTRA EN LA SEGUNDA VEZ. Es un bug menor
 		{
+		    List<String> firstLores = verifyLoreList(firstItem.getItemMeta().getLore());
+		    List<String> secondLores = verifyLoreList(secondItem.getItemMeta().getLore());
+
 		    List<String> resultLores = combinePlayers(firstLores, secondLores);
 		    resultLores = addPlayer(resultLores, FUSIONADO, player);
 		    ItemMeta meta = resultItem.getItemMeta();
@@ -206,7 +205,7 @@ public class Main extends JavaPlugin implements Listener
 		    line = ChatColor.LIGHT_PURPLE + "Encantado por: " + ChatColor.WHITE + player;
 		    break;
 		case 2:
-		    line = ChatColor.GRAY + "Fusionado por: " + ChatColor.WHITE + player;
+		    line = ChatColor.GOLD + "Fusionado por: " + ChatColor.WHITE + player;
 		    break;
 		default:
 		    break;
@@ -290,7 +289,7 @@ public class Main extends JavaPlugin implements Listener
 			line = ChatColor.LIGHT_PURPLE + "Encantado por:" + ChatColor.WHITE;
 			break;
 		    case 2:
-			line = ChatColor.GRAY + "Fusionado por:" + ChatColor.WHITE;
+			line = ChatColor.GOLD + "Fusionado por:" + ChatColor.WHITE;
 			break;
 		    default:
 			break;
